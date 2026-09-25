@@ -158,6 +158,11 @@ informe() {
   else
     warn "gitleaks no instalado (el pre-commit es fail-open; la CI escanea igual)"
   fi
+  if command -v rclone >/dev/null 2>&1; then
+    ok "rclone $(rclone version 2>/dev/null | head -n1 | awk '{print $2}')"
+  else
+    warn "rclone no instalado (solo se necesita para la fase de Contenedores)"
+  fi
   if githooks_instalados; then
     ok "core.hooksPath = .githooks"
   else
@@ -261,8 +266,8 @@ else
   fi
 fi
 
-# ── Stage 4: gitleaks (sugerencia según gestor disponible) ────────────────
-stage "gitleaks (candado de secretos)"
+# ── Stage 4: gitleaks + rclone (sugerencias según gestor disponible) ──────
+stage "gitleaks (candado) y rclone (contenedores)"
 if command -v gitleaks >/dev/null 2>&1; then
   ok "gitleaks $(gitleaks version 2>/dev/null || echo '?')"
 else
@@ -281,6 +286,24 @@ else
   fi
   note "Más opciones: https://github.com/gitleaks/gitleaks#installing"
   pendiente "instalar gitleaks para el candado local (la CI ya escanea el historial)"
+fi
+
+# rclone (contenedores vía Drive; el wizard lo sugiere, NO instala nada de sistema)
+if command -v rclone >/dev/null 2>&1; then
+  ok "rclone $(rclone version 2>/dev/null | head -n1 | awk '{print $2}')"
+else
+  warn "rclone no está instalado (solo se necesita para la fase de Contenedores)."
+  if command -v brew >/dev/null 2>&1; then
+    step "brew detectado — sugerido:  brew install rclone"
+  elif command -v apt-get >/dev/null 2>&1; then
+    step "apt detectado — sugerido:   sudo apt-get install rclone"
+  elif command -v dnf >/dev/null 2>&1; then
+    step "dnf detectado — sugerido:   sudo dnf install rclone"
+  else
+    note "Sin gestor conocido: https://rclone.org/install/ (script oficial o binario)"
+  fi
+  note "El devcontainer de la plantilla canónica ya trae rclone como feature."
+  pendiente "instalar rclone para la fase de Contenedores (alternativa: devcontainer)"
 fi
 
 # ── Stage 5: higiene git — hooks + .gitignore ─────────────────────────────

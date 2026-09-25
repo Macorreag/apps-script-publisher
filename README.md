@@ -40,7 +40,7 @@ cd apps-script-publisher
 bash scripts/wizard-setup-machine.sh
 ```
 
-El wizard deja lista la máquina: Node ≥ 20 (sugiere nvm), clasp **local** (sin `npm install -g`), `gh` autenticado, gitleaks y el hook pre-commit. Después solo falta el login de Google: `clasp login` (o `--no-localhost` en headless).
+El wizard deja lista la máquina: Node ≥ 20 (sugiere nvm), clasp **local** (sin `npm install -g`), `gh` autenticado, gitleaks y el hook pre-commit; sugiere rclone para la fase de Contenedores. Después solo falta el login de Google: `clasp login` (o `--no-localhost` en headless).
 
 ### Cómo correr el flujo
 
@@ -74,7 +74,7 @@ bash scripts/wizard-setup-machine.sh          # interactive
 bash scripts/wizard-setup-machine.sh --check  # report only, changes nothing
 ```
 
-The wizard gets the machine ready: Node ≥ 20 (nvm suggested), **local** clasp (no `npm install -g`), authenticated `gh`, gitleaks, and the pre-commit hook. Then only the Google login remains: `clasp login` (or `--no-localhost` when headless).
+The wizard gets the machine ready: Node ≥ 20 (nvm suggested), **local** clasp (no `npm install -g`), authenticated `gh`, gitleaks, and the pre-commit hook; it also suggests rclone for the Containers phase. Then only the Google login remains: `clasp login` (or `--no-localhost` when headless).
 
 ### Running the flow
 

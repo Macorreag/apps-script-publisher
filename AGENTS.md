@@ -29,7 +29,8 @@ bash scripts/wizard-setup-machine.sh --check  # solo informe, no toca nada
 Deja instalado/verificado: Node ≥ 20 (sugerencia nvm), clasp **local** (sin
 `npm install -g`: evita ROFS/permisos globales), GitHub CLI autenticado,
 gitleaks, y `git config core.hooksPath .githooks` (candado pre-commit de
-secretos).
+secretos); además sugiere rclone (fase de Contenedores) según el gestor de
+paquetes disponible.
 
 ## El flujo en 6 fases
 
