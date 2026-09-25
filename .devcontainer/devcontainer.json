@@ -1,0 +1,20 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/npm-package:1": {},
+		"ghcr.io/devcontainers-contrib/features/rclone:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"wayou.vscode-todo-highlight",
+				"oouo-diogo-perdigao.docthis",
+				"dbaeumer.vscode-eslint"
+			]
+		}
+	},
+	"postCreateCommand": "npm install -g @google/clasp",
+	"updateContentCommand": "npm install",
+	"postStartCommand": ""
+}
