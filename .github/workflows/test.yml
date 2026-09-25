@@ -1,0 +1,51 @@
+# Tests del publisher (issue #11 de AppsScriptProyects).
+#
+# Verifica que el paquete portable se mantiene operativo: sintaxis bash de
+# wizards y hooks, JSON válido, y el wizard en modo informe (--check), que
+# debe pasar sin tocar nada. El candado de secretos vive en gitleaks.yml.
+
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sintaxis bash de wizards y hooks (bash -n)
+        run: |
+          set -euo pipefail
+          find scripts .githooks -type f \( -name '*.sh' -o -name 'pre-commit' \) -print0 \
+            | xargs -0 -n1 bash -n
+          echo "bash -n OK"
+
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          if ! command -v shellcheck >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          fi
+          shellcheck -S warning scripts/*.sh .githooks/pre-commit
+
+      - name: JSON válido (package.json)
+        run: node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json OK')"
+
+      - name: Wizard en modo informe (--check, no toca nada)
+        run: bash scripts/wizard-setup-machine.sh --check
+
+      - name: Instalación local de clasp (lo que hace el wizard)
+        run: |
+          set -euo pipefail
+          export npm_config_cache="$PWD/.npm-cache"
+          npm install @google/clasp --no-bin-links --no-audit --no-fund
+          REL="$(node -e "const p=require('./node_modules/@google/clasp/package.json');console.log(typeof p.bin==='string'?p.bin:(p.bin&&p.bin.clasp)||'')")"
+          test -n "$REL"
+          node "node_modules/@google/clasp/$REL" --version

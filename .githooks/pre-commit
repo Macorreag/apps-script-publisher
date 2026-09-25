@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Candado de secretos en pre-commit (publisher portable, issue #11).
+#
+# Escanea los cambios staged con gitleaks y aborta el commit si encuentra
+# un secreto. El candado duro vive en CI (.github/workflows/gitleaks.yml):
+# este hook es la primera línea de defensa local y es fail-open si gitleaks
+# no está instalado (avisa con el link de instalación y deja pasar el commit).
+#
+# Activación (lo hace scripts/wizard-setup-machine.sh, una vez por clone):
+#   git config core.hooksPath .githooks
+
+set -u
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  {
+    echo "=============================================================="
+    echo "⚠️  gitleaks no está instalado: el commit continúa SIN escaneo"
+    echo "   de secretos. Instálalo para activar el candado local:"
+    echo "   https://github.com/gitleaks/gitleaks#installing"
+    echo "   (o corre: bash scripts/wizard-setup-machine.sh)"
+    echo "   (el escaneo duro corre igual en CI: push a main y pull_request)"
+    echo "=============================================================="
+  } >&2
+  exit 0
+fi
+
+echo "🔒 gitleaks: escaneando cambios staged..."
+
+if gitleaks protect --staged --redact -v; then
+  echo "✅ Sin secretos en los cambios staged."
+  exit 0
+fi
+
+{
+  echo ""
+  echo "❌ gitleaks: posibles secretos en los cambios staged. Commit abortado."
+  echo "   - Elimina el secreto del código: usa placeholders o variables de entorno."
+  echo "   - Falso positivo puntual: añade \`gitleaks:allow\` en la línea"
+  echo "     o registra el fingerprint en .gitleaksignore."
+  echo "   - Si ya llegó al historial: rota/revoca el secreto ANTES de nada,"
+  echo "     luego limpia el historial (git filter-repo)."
+} >&2
+exit 1

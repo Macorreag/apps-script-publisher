@@ -1,0 +1,36 @@
+# Candado de secretos (publisher portable, issue #11 de AppsScriptProyects).
+#
+# gitleaks/gitleaks-action@v2 corre en cada push a main y en cada pull
+# request. Es el candado duro: a diferencia del hook pre-commit (fail-open),
+# aquí un hallazgo deja el run en rojo y bloquea.
+#
+# Sin GITLEAKS_LICENSE: repo personal (la licencia solo aplica a organizaciones).
+
+name: gitleaks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  # pull-requests: read — en pull_request la action lista los commits del PR
+  # (GET /pulls/N/commits); sin este permiso falla con 403 antes de escanear.
+  pull-requests: read
+
+jobs:
+  gitleaks:
+    name: Escaneo de secretos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout con historial completo
+        uses: actions/checkout@v4
+        with:
+          # gitleaks-action necesita el historial para escanear rangos de push
+          fetch-depth: 0
+
+      - name: Escanear secretos
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

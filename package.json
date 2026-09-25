@@ -1,20 +1,28 @@
 {
-  "name": "google-apps-script-starter-template",
+  "name": "apps-script-publisher",
   "version": "1.0.0",
-  "description": "A starter template for Google Apps Script projects using clasp.",
+  "description": "Publisher de proyectos de Google Apps Script: extracción con clasp, contenedores vía Drive API, sanitización gitleaks",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "setup": "bash scripts/wizard-setup-machine.sh",
+    "check": "bash scripts/wizard-setup-machine.sh --check"
+  },
   "author": "Macorreag",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Macorreag/apps-script-publisher.git"
+  },
   "keywords": [
     "google-apps-script",
     "clasp",
-    "starter-template",
+    "publisher",
     "apps-script",
-    "howdy39",
-    "gas-clasp-starter"
+    "gitleaks",
+    "drive-api"
   ],
   "dependencies": {
+    "@google/clasp": "^3.4.1",
     "@types/google-apps-script": "^1.0.31"
   }
 }
