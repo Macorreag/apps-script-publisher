@@ -142,9 +142,16 @@ URL/commit. En monorepo con protección: nunca push directo a `main`.
    con datos de prueba basta para uso personal) para tokens de larga vida.
    Síntoma clásico: `invalid_grant` a la semana exacta.
 5. **`403 storageQuotaExceeded` en export = cuota de la CUENTA, no del
-   pipeline.** El dueño de la cuenta llenó su Drive (o su cuota de export):
-   liberar espacio/vaciar papelera o exportar a menos formatos. El script
-   está bien; no "arreglar" el pipeline.
+    pipeline.** Con la cuenta llena, Google bloquea TODA conversión
+    (`files.export`, cualquier formato) y liberar espacio no siempre es
+    opción. Ruta alternativa verificada en producción: el endpoint async
+    `POST /drive/v3/files/{id}/download` con cuerpo `{"mimeType":"text/csv"}`
+    NO pasa por ese bloqueo → devuelve una operación `done:true` con
+    `response.downloadUri` (export interno de docs.google.com); descarga esa
+    URI con el Bearer siguiendo los redirects 307 y obtienes el CSV exacto.
+    El xlsx/pptx/docx se reconstruye localmente (zip mínimo OOXML o
+    openpyxl) y queda respaldado igual. Validado con un Sheet de 1006×15.
+
 6. **Forms no tiene export binario.** La tabla oficial de export formats de
    Drive no incluye Forms: para respaldarlo usar Forms API (`forms.get`,
    JSON de estructura) o copia server-side con rclone ≥ 1.65
